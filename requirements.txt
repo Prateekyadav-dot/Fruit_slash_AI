@@ -1,0 +1,32 @@
+import math
+
+# ---------------------------
+# GAME CONSTANTS & SETTINGS
+# ---------------------------
+GRAVITY = 0.4
+INITIAL_SPAWN_N = 50
+MAX_DIFFICULTY_N = 12
+RAMP_UP_SECONDS = 30
+MAX_TRAIL = 8
+CLICK_DELAY = 0.5
+MIN_SLASH_DIST = 18
+SLICE_RADIUS = 50
+
+# ---------------------------
+# SLASH & COLLISION DETECTION
+# ---------------------------
+def line_intersects_circle(p1, p2, cx, cy):
+    """Check if a line segment intersects with a circle"""
+    if p1 is None or p2 is None:
+        return False
+    dx, dy = p2[0] - p1[0], p2[1] - p1[1]
+    if math.hypot(dx, dy) < MIN_SLASH_DIST:
+        return False
+    t = max(0, min(1, ((cx - p1[0])*dx + (cy - p1[1])*dy) / (dx*dx + dy*dy + 1e-6)))
+    return math.hypot(cx - (p1[0] + t*dx), cy - (p1[1] + t*dy)) < SLICE_RADIUS
+
+def calculate_difficulty(elapsed_time):
+    """Calculate difficulty based on elapsed time"""
+    difficulty = min(elapsed_time / RAMP_UP_SECONDS, 1.0)
+    spawn_n = INITIAL_SPAWN_N - (difficulty * (INITIAL_SPAWN_N - MAX_DIFFICULTY_N))
+    return difficulty, spawn_n
